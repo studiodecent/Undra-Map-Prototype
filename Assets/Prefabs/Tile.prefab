@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 4970615377530301876}
   - component: {fileID: 4970615377530301879}
   - component: {fileID: 7054148417277756467}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Tile
-  m_TagString: Untagged
+  m_TagString: Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -108,10 +108,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16046f61cf1d13b49ad90d9ada1c3708, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 
-  owner: unclaimed
-  type: 
-  rarity: 
+  data:
+    id: 
+    owner: 
+    type: 
+    rarity: 
+    coords: {x: 0, y: 0}
   uncommonColour: {r: 0.3647059, g: 0.16470589, b: 0.25882354, a: 0}
   rareColor: {r: 0.7764706, g: 0.7921569, b: 0.92941177, a: 0}
   epicColor: {r: 0.3254902, g: 0.5686275, b: 0.49411765, a: 0}

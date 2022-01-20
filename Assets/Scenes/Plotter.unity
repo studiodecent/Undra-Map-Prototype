@@ -501,14 +501,17 @@ MonoBehaviour:
   allRooms:
     rooms: []
   gridSize: 0
-  startingGridSize: 123
+  minimumSpacing: 2
+  drawTime: 0.001
+  startingGridSize: 200
   gridParent: {fileID: 2119227007}
   gridLinePrefab: {fileID: 5112941422110871539, guid: ce35360356a267a4e9d28684e8ae9a59, type: 3}
   gridLines: []
-  roomsToPlot: 15000
+  roomsToPlot: 500
   roomParent: {fileID: 1188116505}
   roomPrefab: {fileID: 8169874019838899453, guid: 8cb8ff486f3976e47a8fdd53f4092003, type: 3}
   rooms: []
+  occupiedSpaces: []
   xAxis: {fileID: 1095894684}
   yAxis: {fileID: 1826404663}
 --- !u!1 &632467713
@@ -705,10 +708,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 1327738471}
   m_HandleRect: {fileID: 1922138755}
   m_Direction: 0
-  m_MinValue: 123
+  m_MinValue: 150
   m_MaxValue: 500
   m_WholeNumbers: 1
-  m_Value: 123
+  m_Value: 150
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:

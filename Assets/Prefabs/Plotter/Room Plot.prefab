@@ -108,7 +108,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8169874019838899453}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11, y: -7, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1331798709265243899}
@@ -132,6 +132,7 @@ MonoBehaviour:
     owner: 
     type: 
     rarity: 
+    coords: {x: 0, y: 0}
   sprite: {fileID: 4243522485492924140}
 --- !u!212 &8169874019838899452
 SpriteRenderer:

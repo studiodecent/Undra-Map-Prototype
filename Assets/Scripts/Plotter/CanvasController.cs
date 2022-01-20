@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine;
 
 public class CanvasController : MonoBehaviour {
 
@@ -13,9 +13,12 @@ public class CanvasController : MonoBehaviour {
     [SerializeField] private Planner planner;
 
     private void Update() {
-        
-        gridSizeText.text = $"Grid size: {planner.gridSize} x {planner.gridSize}\n{Mathf.Pow(gridSlider.value, 2)} tiles";
+        gridSizeText.text = $"Grid size: {planner.gridSize} x {planner.gridSize}\n{Mathf.Pow(planner.gridSize, 2)} tiles";
+    }
 
+    public void SetSliderRange(int min, int max) {
+        gridSlider.minValue = min;
+        gridSlider.maxValue = max;
     }
 
 }
