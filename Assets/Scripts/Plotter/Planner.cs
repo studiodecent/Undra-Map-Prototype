@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class Planner : MonoBehaviour {
@@ -25,7 +26,7 @@ public class Planner : MonoBehaviour {
     [SerializeField] private GameObject roomPrefab;
     [Space]
     [SerializeField] private List<GameObject> rooms;
-    [SerializeField] private List<Vector2> occupiedSpaces;
+    [SerializeField] private List<Vector2> possibleSpaces;
 
     [Header("Object References")]
     [SerializeField] private LineRenderer xAxis;
@@ -35,26 +36,23 @@ public class Planner : MonoBehaviour {
 
     private void Start() {
 
-        allRooms = JsonUtility.FromJson<RoomList>(roomsJSON.text);
         // NB access via allRooms.rooms[0].id etc
+        allRooms = JsonUtility.FromJson<RoomList>(roomsJSON.text);
 
         roomsToPlot = allRooms.rooms.Length;
         Debug.Log($"Plotting {roomsToPlot} rooms at random...");
 
-        // make it so that there's a spacing of at least 1 square between rooms
-        SetMinimumSpacing(Mathf.CeilToInt(Mathf.Clamp(minimumSpacing, 1.0f, Mathf.Infinity)));
+        SetMinimumSpacing(minimumSpacing);
         SetSize(Mathf.Sqrt(roomsToPlot));
 
-        // twice as big to give us some breathing room
-        DrawGrid(gridSize * 2);
+        canvas.SetSliderRange(Mathf.CeilToInt(Mathf.Sqrt(roomsToPlot)), Mathf.CeilToInt(Mathf.Sqrt(roomsToPlot) * 10));
 
-        // set the minimum value on the slider to the absolute minimum grid size for the number of rooms with the spacing variable
-        canvas.SetSliderRange(gridSize, gridSize * 10);
+        DrawGrid(gridSize);
 
     }
 
     public void SetMinimumSpacing(int spacing) {
-        minimumSpacing = spacing + 1;
+        minimumSpacing = Mathf.CeilToInt(Mathf.Clamp(spacing, 1.0f, Mathf.Infinity));
     }
 
     public void SetSize(float size) {
@@ -102,21 +100,24 @@ public class Planner : MonoBehaviour {
     }
 
     public IEnumerator PlotRooms(int number) {
-        
-        int i = 0;
-        Vector2 _maxPosition = new Vector2(gridSize, gridSize);
 
-        while (i < number) {
+        yield return ListPossibleSpaces();
+
+        int i = 0;
+
+        for (int r = 0; r < allRooms.rooms.Length ; r++) {
             GameObject obj = Instantiate(roomPrefab);
             
-            Vector2 _pos = FindEmptyPosition(Vector2.zero, _maxPosition);
+            Vector2 _pos = FindEmptyPosition();
             
-            obj.name = $"Room ({(int)_pos.x}, {(int)_pos.y})";
+            obj.name = $"{allRooms.rooms[r].id}";
             obj.transform.position = _pos;
             obj.transform.SetParent(roomParent);
 
+            obj.GetComponent<RoomPlot>().SetData(allRooms.rooms[r]);
+            
             rooms.Add(obj);
-            occupiedSpaces.Add(new Vector2(obj.transform.position.x, obj.transform.position.y));
+            // occupiedSpaces.Add(new Vector2(obj.transform.position.x, obj.transform.position.y));
 
             i++;
             yield return new WaitForSeconds(drawTime);
@@ -124,6 +125,18 @@ public class Planner : MonoBehaviour {
 
         Debug.Log("PLOTTED");
 
+    }
+
+    private IEnumerator ListPossibleSpaces() {
+        int _max = gridSize - minimumSpacing;
+
+        for (int x = minimumSpacing; x < gridSize ; x += minimumSpacing) {
+            for (int y = 0 - minimumSpacing; y > 0 - gridSize; y -= minimumSpacing) {
+                possibleSpaces.Add(new Vector2(x, y));
+            }
+        }
+
+        yield return null;
     }
 
     public void Replot() {
@@ -136,45 +149,20 @@ public class Planner : MonoBehaviour {
         foreach (GameObject room in rooms) GameObject.Destroy(room);
         rooms.Clear();
 
-        occupiedSpaces.Clear();
+        possibleSpaces.Clear();
 
         SetSize(gridSize);
         DrawGrid(gridSize);
 
-        StartCoroutine(PlotRooms(roomsToPlot));
-
     }
 
-    private Vector2 FindEmptyPosition(Vector2 min, Vector2 max) {
+    private Vector2 FindEmptyPosition() {
+        int _random = Mathf.FloorToInt(Random.Range(0, possibleSpaces.Count - 1));
 
-        int _attempts = 1;
+        Vector2 _randomPosition = possibleSpaces[_random];
 
-        Vector2 _randomPosition = new Vector2 ( (int)Mathf.Floor(Random.Range(min.x + minimumSpacing, max.x - minimumSpacing)),
-                                                -(int)Mathf.Floor(Random.Range(min.x + minimumSpacing, max.y - minimumSpacing))
-                                              );
-
-        // TODO if this has to loop recursively more than a few times (more likely with higher numbers of rooms and larger minimum spacing) Unity will trigger a StackOverFlowException
-        foreach (Vector2 occupiedSpace in occupiedSpaces) {
-            if (Vector2.Distance(occupiedSpace, _randomPosition) < minimumSpacing) {
-                _attempts++;
-
-                // string _msg;
-
-                Random.InitState(Mathf.FloorToInt(Time.time * 1000));
-                
-                if (Random.Range(0f, 1f) > 0.5f) {
-                    FindEmptyPosition(  new Vector2(min.x + minimumSpacing, min.y + minimumSpacing),
-                                        new Vector2(_randomPosition.x - minimumSpacing, _randomPosition.y - minimumSpacing));
-                    // _msg = " Going higher.";
-                } else {
-                    FindEmptyPosition(  new Vector2(_randomPosition.x + minimumSpacing, _randomPosition.y + minimumSpacing),
-                                        new Vector2(max.x - minimumSpacing, max.y - minimumSpacing));
-                    // _msg = " Going lower.";
-                }
-
-                // Debug.Log($"Collision at {_randomPosition} (distance of {Vector2.Distance(occupiedSpace, _randomPosition)}). Finding new position (attempt #{_attempts}). {_msg}");
-            }
-        }
+        possibleSpaces[_random] = possibleSpaces[possibleSpaces.Count - 1];
+        possibleSpaces.RemoveAt(possibleSpaces.Count -1);
 
         return _randomPosition;
     }

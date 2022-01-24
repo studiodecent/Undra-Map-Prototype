@@ -21,4 +21,8 @@ public class CanvasController : MonoBehaviour {
         gridSlider.maxValue = max;
     }
 
+    public void SetSliderValue(int value) {
+        gridSlider.value = value;
+    }
+
 }

@@ -507,13 +507,14 @@ MonoBehaviour:
   gridParent: {fileID: 2119227007}
   gridLinePrefab: {fileID: 5112941422110871539, guid: ce35360356a267a4e9d28684e8ae9a59, type: 3}
   gridLines: []
-  roomsToPlot: 500
+  roomsToPlot: 100
   roomParent: {fileID: 1188116505}
   roomPrefab: {fileID: 8169874019838899453, guid: 8cb8ff486f3976e47a8fdd53f4092003, type: 3}
   rooms: []
-  occupiedSpaces: []
+  possibleSpaces: []
   xAxis: {fileID: 1095894684}
   yAxis: {fileID: 1826404663}
+  canvas: {fileID: 1547310629}
 --- !u!1 &632467713
 GameObject:
   m_ObjectHideFlags: 0
