@@ -7,11 +7,15 @@ public class RoomPlot : MonoBehaviour {
     public Room data;
     public SpriteRenderer sprite;
 
+    private Color colour;
+
     public void SetData(Room roomData) {
         data = roomData;
+        this.name = data.id;
 
-        // this isn't working?
-        sprite.material.color = GetRoomColour(roomData.type);
+        // this isn't working???
+        colour = GetRoomColour(data.type);
+        this.sprite.material.color = colour;
     }
 
     private Color GetRoomColour(string type) {
@@ -25,6 +29,16 @@ public class RoomPlot : MonoBehaviour {
             default:
                 return Color.black;
         }
+    }
+
+    private void OnMouseEnter() {
+        this.sprite.material.color = Color.white;
+        GameObject.FindWithTag("GUI").GetComponent<CanvasController>().DisplayInfo(data);
+    }
+
+    private void OnMouseExit() {
+        this.sprite.material.color = colour;
+        GameObject.FindWithTag("GUI").GetComponent<CanvasController>().DisplayInfo();
     }
 
     
