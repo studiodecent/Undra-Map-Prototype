@@ -5,45 +5,45 @@ using UnityEngine;
 
 public class Planner : MonoBehaviour {
 
-    [Header("JSON data")]
-    [SerializeField] private TextAsset roomsJSON;
-    public RoomList allRooms;
+    [Space]
 
-    [Header("Controllables")]
     public int gridSize = 200;
     public int minimumSpacing = 1;
-    public float drawTime = 0.05f;
 
-    [Header("Grid")]
-    [SerializeField] private int startingGridSize = 123;
-    
+    [Header("JSON Data")]
+    [SerializeField] private TextAsset roomsJSON;
+    public RoomList data;
+
+    [Space]
+    [Space]
+    [Space]
+
+    [Header("Object References")]
+    [SerializeField] private Transform roomParent;
+    [SerializeField] private GameObject roomPrefab;
+    [SerializeField] private List<GameObject> roomObjects;
+    [Space]
+    [SerializeField] private List<Vector2> possibleSpaces;
+    [Space]
+    [SerializeField] private LineRenderer xAxis;
+    [SerializeField] private LineRenderer yAxis;
+    [Space]
     [SerializeField] private Transform gridParent;
     [SerializeField] private GameObject gridLinePrefab;
     [SerializeField] private List<GameObject> gridLines;
-    
-    [Header("Rooms")]
-    public int roomsToPlot;
-    [SerializeField] private Transform roomParent;
-    [SerializeField] private GameObject roomPrefab;
-    [Space]
-    [SerializeField] private List<GameObject> rooms;
-    [SerializeField] private List<Vector2> possibleSpaces;
-
-    [Header("Object References")]
-    [SerializeField] private LineRenderer xAxis;
-    [SerializeField] private LineRenderer yAxis;
     [Space]
     [SerializeField] private CanvasController canvas;
     
     private CameraController cam;
-
+    private int roomsToPlot;
+    
     private void Start() {
 
         cam = Camera.main.GetComponent<CameraController>();
 
-        // NB access via allRooms.rooms[0].id etc
-        allRooms = JsonUtility.FromJson<RoomList>(roomsJSON.text);
-        roomsToPlot = allRooms.rooms.Length;
+        // NB access via data.rooms[0].id etc
+        data = JsonUtility.FromJson<RoomList>(roomsJSON.text);
+        roomsToPlot = data.rooms.Length;
 
         if (minimumSpacing <= 0) minimumSpacing = 1;
         gridSize = GetRoundedSize(GetMinimumSize(roomsToPlot, minimumSpacing));
@@ -62,9 +62,9 @@ public class Planner : MonoBehaviour {
             gridLines.Clear();
         }
 
-        if (rooms.Count > 0) {
-            foreach (GameObject room in rooms) GameObject.Destroy(room);
-            rooms.Clear();
+        if (roomObjects.Count > 0) {
+            foreach (GameObject room in roomObjects) GameObject.Destroy(room);
+            roomObjects.Clear();
         }
 
         if (possibleSpaces.Count > 0) possibleSpaces.Clear();
@@ -134,16 +134,16 @@ public class Planner : MonoBehaviour {
     public IEnumerator PlotRooms(int number) {
         yield return ListPossibleSpaces();
 
-        for (int r = 0; r < allRooms.rooms.Length ; r++) {
+        for (int r = 0; r < data.rooms.Length ; r++) {
             GameObject obj = Instantiate(roomPrefab);
-            Room data = allRooms.rooms[r];
-            Vector2 pos = FindEmptyPosition();
-            
-            obj.transform.position = pos;
+            Room room = data.rooms[r];
+
             obj.transform.SetParent(roomParent);
-            obj.GetComponent<RoomPlot>().SetData(data);
-            
-            rooms.Add(obj);
+            obj.GetComponent<RoomPlot>().SetData(room);            
+            roomObjects.Add(obj);
+
+            Vector2 pos = FindEmptyPosition();
+            obj.transform.position = pos;
 
             yield return new WaitForEndOfFrame();
         }
@@ -160,8 +160,6 @@ public class Planner : MonoBehaviour {
 
         yield return null;
     }
-
-    
 
     private Vector2 FindEmptyPosition() {
         int _random = Mathf.FloorToInt(Random.Range(0, possibleSpaces.Count - 1));
